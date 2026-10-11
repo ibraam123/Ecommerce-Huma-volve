@@ -16,10 +16,8 @@ class ApiClient {
   );
 
   late final Dio _dio;
-  final TokenStorage tokenStorage;
 
   ApiClient({
-    required this.tokenStorage,
     String baseUrl = defaultBaseUrl,
     Duration timeout = const Duration(seconds: 60),
   }) {
@@ -63,7 +61,6 @@ class ApiClient {
         },
       ),
     );
-    _dio.interceptors.add(TokenInterceptor(tokenStorage, _dio, baseUrl: baseUrl));
   }
 
   Future<Map<String, dynamic>> get(

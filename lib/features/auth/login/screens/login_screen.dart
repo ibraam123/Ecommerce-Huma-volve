@@ -1,5 +1,7 @@
-
+import 'package:ecommerce_app_huma_volve/features/auth/login/logic/login_cubit.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/login/logic/login_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
@@ -51,14 +53,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 32),
                 Text(
                   'Welcome Back!',
-                  style: Theme.of(context).textTheme.displayLarge
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .displayLarge
                       ?.copyWith(fontSize: 32),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Login to continue your shopping',
-                  style: Theme.of(context).textTheme.bodyMedium
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .bodyMedium
                       ?.copyWith(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
@@ -106,16 +114,58 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                PrimaryButton(
-                  text: 'Login',
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
+                BlocConsumer<LoginCubit, LoginState>(
+                  listener: (context, state) {
+                    if (state is LoginFailure) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.failure.message),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                    if (state is LoginSuccess) {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
                           builder: (context) => MainNavigationScreen(),
                         ),
                       );
                     }
+
+                  },
+                  builder: (context, state) {
+                    if (state is LoginLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    return PrimaryButton(
+                      text: 'Login',
+                      onPressed: () {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          context.read<LoginCubit>().login(
+                            emailController.text.trim(),
+                            passwordController.text.trim(),
+                              );
+                        }
+                      },
+                    );
+
+                    /*
+                    return PrimaryButton(
+                      text: 'Login',
+                      onPressed: () {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => MainNavigationScreen(),
+                            ),
+                          );
+                        }
+                      },
+                    );
+                    */
                   },
                 ),
                 const SizedBox(height: 24),
@@ -128,23 +178,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.pushReplacement(
                           context,
                           PageRouteBuilder(
-                            pageBuilder: (
-                              context,
-                              animation,
-                              secondaryAnimation,
-                            ) => const SignUpScreen(),
+                            pageBuilder: (context,
+                                animation,
+                                secondaryAnimation,) => const SignUpScreen(),
                             transitionsBuilder:
-                                (
-                                  context,
-                                  animation,
-                                  secondaryAnimation,
-                                  child,
-                                ) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: child,
-                                  );
-                                },
+                                (context,
+                                animation,
+                                secondaryAnimation,
+                                child,) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
                           ),
                         );
                       },
